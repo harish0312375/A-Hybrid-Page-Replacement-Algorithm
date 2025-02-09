@@ -1,4 +1,4 @@
-```markdown
+
 # A Novel Hybrid Page Replacement Algorithm
 
 ## Introduction
