@@ -1,0 +1,145 @@
+
+import random
+from collections import defaultdict
+
+# Simulated memory frames (3 frames)
+num_frames = 3
+
+# Function to generate random page reference string (100 random pages between 0 to 9)
+def generate_random_pages():
+    return random.choices(range(10), k=100)
+
+# Function to simulate FIFO page replacement algorithm
+def fifo(frames, page_reference, hits, faults, counter=None):
+    if page_reference not in frames:
+        faults += 1
+  frames.pop(0)  # Remove the oldest page
+        frames.append(page_reference)  # Add the new page
+    else:
+        hits += 1
+    return hits, faults
+
+# Function to simulate LRU page replacement algorithm
+def lru(frames, page_reference, hits, faults, counter=None):
+    if page_reference in frames:
+        hits += 1
+        frames.remove(page_reference)  # Move page to MRU position
+        frames.append(page_reference)
+    else:
+        faults += 1
+        frames.pop(0)  # Remove the oldest page
+        frames.append(page_reference)
+    return hits, faults
+
+# Function to simulate LFU page replacement algorithm
+def lfu(frames, page_reference, hits, faults, counter):
+    if page_reference in frames:
+        hits += 1
+        counter[page_reference] += 1
+        frames.remove(page_reference)  # Move page to MRU position
+        frames.append(page_reference)
+else:
+        faults += 1
+        frames.pop(0)  # Remove the oldest page
+        frames.append(page_reference)
+    return hits, faults
+
+
+#Modified Function:
+def hybrid(frames,page,hits,faults,j,counter=None):
+       algorithms = [fifo, lru, lfu]
+       algorithm = algorithms[j % len(algorithms)]  # Cycle through algorithms
+       hits, faults = algorithm(frames, page, hits, faults, counter)
+       return hits,faults
+
+
+#Main function Code:
+import numpy as np
+total_page_faults=np.zeros((100,4));
+#0->FIFO,1->LRU,2->LFU,3->Hybrid
+total_page_hits=np.zeros((100,4));
+# Generate random page reference string
+
+for i in range(100):
+      random_pages = generate_random_pages()
+      frames = [-1] * num_frames
+      hits = 0
+      faults = 0
+ counter = defaultdict(int)
+      for j,page in enumerate(random_pages):
+            hits,faults=fifo(frames,page,hits,faults,counter)
+      total_page_faults[i,0]=faults
+      total_page_hits[i,0]=hits
+      frames = [-1] * num_frames
+      hits = 0
+      faults = 0
+      counter = defaultdict(int)
+      for j,page in enumerate(random_pages):
+            hits,faults=lru(frames,page,hits,faults,counter)
+      total_page_faults[i,1]=faults
+      total_page_hits[i,1]=hits
+      frames = [-1] * num_frames
+      hits = 0
+      faults = 0
+      counter = defaultdict(int)
+      for j,page in enumerate(random_pages):
+            hits,faults=lfu(frames,page,hits,faults,counter)
+      total_page_faults[i,2]=faults
+      total_page_hits[i,2]=hits
+      frames = [-1] * num_frames
+ hits = 0
+      faults = 0
+      counter = defaultdict(int)
+      for j,page in enumerate(random_pages):
+            hits,faults=hybrid(frames,page,hits,faults,j,counter)
+      total_page_faults[i,3]=faults
+      total_page_hits[i,3]=hits
+   
+# Run the hybrid page replacement simulation 100 times and calculate averages
+avg_hits_fifo,avg_faults_fifo=sum(total_page_hits[:,0])/100,sum(total_page_faults[:,0])/100 
+avg_hits_lru,avg_faults_lru=sum(total_page_hits[:,1])/100,sum(total_page_faults[:,1])/100
+avg_hits_lfu,avg_faults_lfu=sum(total_page_hits[:,2])/100,sum(total_page_faults[:,2])/100
+avg_hits_hybrid,avg_faults_hybrid=sum(total_page_hits[:,3])/100,sum(total_page_faults[:,3])/100
+# Print average hits and faults
+
+print(f"Average Hits FIFO: {avg_hits_fifo}")
+print(f"Average Faults FIFO: {avg_faults_fifo}")
+print(f"Average Hits LRU: {avg_hits_lru}")
+print(f"Average Faults LRU: {avg_faults_lru}")
+print(f"Average Hits LFU: {avg_hits_lfu}")
+print(f"Average Faults LFU: {avg_faults_lfu}")
+print(f"Average Hits Hybrid: {avg_hits_hybrid}")
+print(f"Average Faults Hybrid: {avg_faults_hybrid}")
+   
+    
+    
+
+
+
+
+
+
+OUTPUT SCREENS
+
+OUTPUT1:           
+Average Hits FIFO: 29.81
+Average Faults FIFO: 70.19
+Average Hits LRU: 29.49
+Average Faults LRU: 70.51
+Average Hits LFU: 29.49
+Average Faults LFU: 70.51
+Average Hits Hybrid: 29.49
+Average Faults Hybrid: 70.51
+
+
+
+
+OUTPUT2:
+                      Average Hits FIFO: 29.3
+Average Faults FIFO: 70.7
+Average Hits LRU: 29.3
+Average Faults LRU: 70.7
+Average Hits LFU: 29.3
+Average Faults LFU: 70.7
+Average Hits Hybrid: 29.34
+Average Faults Hybrid: 70.66
